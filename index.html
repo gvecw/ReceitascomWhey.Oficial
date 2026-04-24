@@ -5,23 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>400 Preparos Saudáveis com Whey | A Coletânea Definitiva</title>
     <meta name="description" content="Descubra como preparar refeições incríveis com whey. 400 preparos validados por especialista — tortas, pizzas, sobremesas e muito mais. Mais de 15.000 pessoas já aprovaram." />
-    <!-- Pixel Facebook -->
+
+    <!-- UTMify Pixel -->
     <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-      document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1835008960458823');
-      fbq('track', 'PageView');
+      window.pixelId = "69eb710b5d8aab08ae45fef7";
+      var a = document.createElement("script");
+      a.setAttribute("async", "");
+      a.setAttribute("defer", "");
+      a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+      document.head.appendChild(a);
     </script>
-    <!-- UTMify -->
-    <script async src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-subids></script>
-    <script async src="https://cdn.utmify.com.br/scripts/pixel/68d9e3b2051c28fc61b6aead.js"></script>
+
+    <!-- UTMify UTMs -->
+    <script
+      src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+      data-utmify-prevent-xcod-sck
+      data-utmify-prevent-subids
+      async
+      defer
+    ></script>
+
+    <!-- UTMify Eventos de Conversão -->
+    <script>
+      function fireUtmifyEvent(eventName, data) {
+        if (window.utmify && typeof window.utmify === 'function') {
+          window.utmify('track', eventName, data || {});
+        } else {
+          // Fila para disparar quando o pixel carregar
+          window._utmifyQueue = window._utmifyQueue || [];
+          window._utmifyQueue.push({ event: eventName, data: data || {} });
+        }
+      }
+
+      // Dispara eventos na fila assim que o pixel estiver pronto
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (window._utmifyQueue && window.utmify) {
+            window._utmifyQueue.forEach(function (item) {
+              window.utmify('track', item.event, item.data);
+            });
+            window._utmifyQueue = [];
+          }
+        }, 1500);
+
+        // IDs dos botões de checkout mapeados no bundle
+        var basicBtnId    = 'ea5d1993-36bc-9623-3f71-a921eff0da3d'; // plano R$18,90
+        var completeBtnId = 'e9249012-f35b-9564-a38c-d016d183257f'; // plano R$29,90
+        var upsellBtnId   = '99022520-bcaa-4745-7d6e-adb564827c60'; // pop-up upsell R$24,90
+        var popupBtnId    = '0cf7fa1a-346b-fe19-6c20-8acf07586f0c'; // outro botão popup
+        var extraBtnId    = '09d4ceb2-5d8e-da2b-b15c-488d615edc55'; // botão extra
+
+        var checkoutButtons = [
+          { id: basicBtnId,    value: 18.90, plan: 'Basico'   },
+          { id: completeBtnId, value: 29.90, plan: 'Completo' },
+          { id: upsellBtnId,   value: 24.90, plan: 'Upsell'   },
+          { id: popupBtnId,    value: 24.90, plan: 'Popup'    },
+          { id: extraBtnId,    value: 18.90, plan: 'Extra'    }
+        ];
+
+        checkoutButtons.forEach(function (btn) {
+          var el = document.getElementById(btn.id);
+          if (el) {
+            el.addEventListener('click', function () {
+              fireUtmifyEvent('InitiateCheckout', {
+                value: btn.value,
+                currency: 'BRL',
+                plan: btn.plan
+              });
+            });
+          }
+        });
+
+        // Fallback: qualquer link para pay.cakto.com.br também dispara
+        document.querySelectorAll('a[href*="pay.cakto.com.br"]').forEach(function (link) {
+          link.addEventListener('click', function () {
+            fireUtmifyEvent('InitiateCheckout', { currency: 'BRL' });
+          });
+        });
+      });
+    </script>
+
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
   </head>
   <body>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1835008960458823&ev=PageView&noscript=1"/></noscript>
     <div id="root"></div>
   </body>
 </html>
