@@ -76,10 +76,11 @@
           }
         });
 
-        // Fallback: qualquer link para pay.cakto.com.br também dispara
-        document.querySelectorAll('a[href*="pay.cakto.com.br"]').forEach(function (link) {
+        // Fallback: qualquer link de checkout dispara InitiateCheckout
+        document.querySelectorAll('a[href*="pay.cakto.com.br"], a[href*="tilimcheckout.com"]').forEach(function (link) {
           link.addEventListener('click', function () {
-            fireUtmifyEvent('InitiateCheckout', { currency: 'BRL' });
+            var value = link.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90 : 18.90;
+            fireUtmifyEvent('InitiateCheckout', { value: value, currency: 'BRL' });
           });
         });
       });
