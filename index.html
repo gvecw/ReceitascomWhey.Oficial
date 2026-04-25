@@ -174,22 +174,17 @@
       setTimeout(drainQueue, 2000);
       setTimeout(drainQueue, 4000);
 
-      // Event delegation para disparar InitiateCheckout
+      // Event delegation — dispara APENAS em links de checkout
       document.addEventListener('click', function(e) {
         var el = e.target;
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 6; i++) {
           if (!el || el === document) break;
-          for (var j = 0; j < _checkoutButtons.length; j++) {
-            if (el.id === _checkoutButtons[j].id) {
-              fireUtmifyEvent('InitiateCheckout', { value: _checkoutButtons[j].value, currency: 'BRL', plan: _checkoutButtons[j].plan });
-              try { fbq('track', 'InitiateCheckout', { value: _checkoutButtons[j].value, currency: 'BRL' }); } catch(e) {}
-              return;
-            }
-          }
           if (el.tagName === 'A' && el.href && isCheckoutUrl(el.href)) {
-            var val = el.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90 : (el.href.indexOf('f92ca87a') >= 0 ? 24.90 : 18.90);
+            var val = el.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90
+                    : el.href.indexOf('f92ca87a')         >= 0 ? 24.90
+                    : 18.90;
             fireUtmifyEvent('InitiateCheckout', { value: val, currency: 'BRL' });
-            try { fbq('track', 'InitiateCheckout', { value: val, currency: 'BRL' }); } catch(e) {}
+            try { fbq('track', 'InitiateCheckout', { value: val, currency: 'BRL' }); } catch(x) {}
             return;
           }
           el = el.parentElement;
