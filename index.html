@@ -123,11 +123,9 @@
         setTimeout(attachToCheckoutLinks, 2000);
       });
 
-      // ViewContent — dispara apenas na primeira vez que o usuário rolar a página
-      var _vcFired = false;
-      window.addEventListener('scroll', function() {
-        if (_vcFired) return;
-        _vcFired = true;
+      // ViewContent — dispara UMA única vez no primeiro scroll
+      function _onFirstScroll() {
+        window.removeEventListener('scroll', _onFirstScroll);
         try {
           fbq('track', 'ViewContent', {
             content_name: '400 Preparos Saudáveis com Whey',
@@ -138,7 +136,8 @@
             currency: 'BRL'
           });
         } catch(e) {}
-      }, { passive: true });
+      }
+      window.addEventListener('scroll', _onFirstScroll, { passive: true });
     </script>
 
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
