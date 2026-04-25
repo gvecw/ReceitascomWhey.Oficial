@@ -6,9 +6,10 @@
     <title>400 Preparos Saudáveis com Whey | A Coletânea Definitiva</title>
     <meta name="description" content="Descubra como preparar refeições incríveis com whey. 400 preparos validados por especialista — tortas, pizzas, sobremesas e muito mais. Mais de 15.000 pessoas já aprovaram." />
 
+
     <!-- UTMify Pixel -->
     <script>
-      window.pixelId = "69eb710b5d8aab08ae45fef7";
+      window.pixelId = "69ecfd33c5707305e1ba1ec2";
       var a = document.createElement("script");
       a.setAttribute("async", "");
       a.setAttribute("defer", "");
@@ -167,12 +168,14 @@
           for (var j = 0; j < _checkoutButtons.length; j++) {
             if (el.id === _checkoutButtons[j].id) {
               fireUtmifyEvent('InitiateCheckout', { value: _checkoutButtons[j].value, currency: 'BRL', plan: _checkoutButtons[j].plan });
+              try { fbq('track', 'InitiateCheckout', { value: _checkoutButtons[j].value, currency: 'BRL' }); } catch(e) {}
               return;
             }
           }
           if (el.tagName === 'A' && el.href && isCheckoutUrl(el.href)) {
-            var val = el.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90 : 18.90;
+            var val = el.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90 : (el.href.indexOf('f92ca87a') >= 0 ? 24.90 : 18.90);
             fireUtmifyEvent('InitiateCheckout', { value: val, currency: 'BRL' });
+            try { fbq('track', 'InitiateCheckout', { value: val, currency: 'BRL' }); } catch(e) {}
             return;
           }
           el = el.parentElement;
