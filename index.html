@@ -18,14 +18,6 @@
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
       fbq('track', 'PageView');
-      fbq('track', 'ViewContent', {
-        content_name: '400 Preparos Saudáveis com Whey',
-        content_category: 'Ebook',
-        content_type: 'product',
-        content_ids: ['whey-receitas-400'],
-        value: 18.90,
-        currency: 'BRL'
-      });
     </script>
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
@@ -130,6 +122,23 @@
         setTimeout(attachToCheckoutLinks, 800);
         setTimeout(attachToCheckoutLinks, 2000);
       });
+
+      // ViewContent — dispara apenas na primeira vez que o usuário rolar a página
+      var _vcFired = false;
+      window.addEventListener('scroll', function() {
+        if (_vcFired) return;
+        _vcFired = true;
+        try {
+          fbq('track', 'ViewContent', {
+            content_name: '400 Preparos Saudáveis com Whey',
+            content_category: 'Ebook',
+            content_type: 'product',
+            content_ids: ['whey-receitas-400'],
+            value: 18.90,
+            currency: 'BRL'
+          });
+        } catch(e) {}
+      }, { passive: true });
     </script>
 
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
