@@ -6,7 +6,6 @@
     <title>400 Preparos Saudáveis com Whey | A Coletânea Definitiva</title>
     <meta name="description" content="Descubra como preparar refeições incríveis com whey. 400 preparos validados por especialista — tortas, pizzas, sobremesas e muito mais. Mais de 15.000 pessoas já aprovaram." />
 
-
     <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
@@ -19,6 +18,14 @@
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
       fbq('track', 'PageView');
+      fbq('track', 'ViewContent', {
+        content_name: '400 Preparos Saudáveis com Whey',
+        content_category: 'Ebook',
+        content_type: 'product',
+        content_ids: ['whey-receitas-400'],
+        value: 18.90,
+        currency: 'BRL'
+      });
     </script>
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
@@ -26,10 +33,8 @@
     <!-- End Meta Pixel Code -->
 
     <!-- UTMify Pixel -->
-
     <script>window.pixelId = "69ecfd33c5707305e1ba1ec2";</script>
     <script src="https://cdn.utmify.com.br/scripts/pixel/pixel.js" async defer></script>
-
 
     <!-- UTMify UTMs -->
     <script
@@ -40,40 +45,47 @@
       defer
     ></script>
 
-    <!-- UTMify Eventos de Conversão - Event Delegation -->
+    <!-- Rastreamento de Checkout -->
     <script>
-      // ─── 1. CAPTURA DE UTMs ───────────────────────────────────────────
-      var _utmKeys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck','xcod'];
+      // URLs de checkout
+      var _checkoutUrls = [
+        'tilimcheckout.com',
+        'pay.cakto.com.br'
+      ];
+
+      function isCheckoutUrl(url) {
+        return url && _checkoutUrls.some(function(d) { return url.indexOf(d) >= 0; });
+      }
+
+      function getCheckoutValue(url) {
+        if (url.indexOf('443d06f83d55c3bd') >= 0) return 29.90;
+        if (url.indexOf('f92ca87a')         >= 0) return 24.90;
+        return 18.90;
+      }
+
+      // Captura e salva UTMs da URL no localStorage
+      (function() {
+        try {
+          var keys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck','xcod'];
+          var p = new URLSearchParams(window.location.search);
+          keys.forEach(function(k) { var v = p.get(k); if (v) localStorage.setItem(k, v); });
+        } catch(e) {}
+      })();
 
       function getStoredUtms() {
         var result = {};
-        // 1a. Pega da URL atual
         try {
-          var params = new URLSearchParams(window.location.search);
-          _utmKeys.forEach(function(k) {
-            var v = params.get(k);
+          var keys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck','xcod'];
+          var p = new URLSearchParams(window.location.search);
+          keys.forEach(function(k) {
+            var v = p.get(k) || localStorage.getItem(k);
             if (v) result[k] = v;
           });
-        } catch(e) {}
-        // 1b. Pega do localStorage (UTMify salva aqui)
-        try {
-          _utmKeys.forEach(function(k) {
-            if (!result[k]) {
-              var v = localStorage.getItem(k) || localStorage.getItem('utmify_' + k);
-              if (v) result[k] = v;
-            }
-          });
-          // Tenta também o objeto utmify salvo
-          var raw = localStorage.getItem('utmify');
-          if (raw) {
-            var parsed = JSON.parse(raw);
-            Object.keys(parsed).forEach(function(k) { if (!result[k] && parsed[k]) result[k] = parsed[k]; });
-          }
         } catch(e) {}
         return result;
       }
 
-      function appendUtmsToUrl(url) {
+      function appendUtms(url) {
         var utms = getStoredUtms();
         var keys = Object.keys(utms);
         if (!keys.length) return url;
@@ -83,115 +95,42 @@
         }).join('&');
       }
 
-      // Salva UTMs da URL atual no localStorage ao carregar
-      (function() {
+      function fireCheckoutEvent(value) {
+        // Facebook Pixel
+        try { fbq('track', 'InitiateCheckout', { value: value, currency: 'BRL' }); } catch(e) {}
+        // UTMify
         try {
-          var params = new URLSearchParams(window.location.search);
-          _utmKeys.forEach(function(k) {
-            var v = params.get(k);
-            if (v) localStorage.setItem(k, v);
-          });
+          if (window.utmify) window.utmify('track', 'InitiateCheckout', { value: value, currency: 'BRL' });
         } catch(e) {}
-      })();
-
-      // ─── 2. CHECKOUT DOMAINS ─────────────────────────────────────────
-      var _checkoutDomains = ['tilimcheckout.com', 'pay.cakto.com.br'];
-
-      function isCheckoutUrl(url) {
-        return _checkoutDomains.some(function(d) { return url && url.indexOf(d) >= 0; });
       }
 
-      // ─── 3. INTERCEPTA window.location.href ─────────────────────────
-      // Garante que redirecionamentos JS também levam UTMs
-      var _origDescriptor = Object.getOwnPropertyDescriptor(window.location, 'href');
-      try {
-        var _locationProxy = {
-          set href(url) {
-            if (isCheckoutUrl(url)) {
-              url = appendUtmsToUrl(url);
-              console.log('[UTM] Redirect interceptado:', url);
-            }
-            window.location.assign(url);
-          }
-        };
-      } catch(e) {}
+      // Anexa listener DIRETAMENTE nos links de checkout após React montar
+      var _patched = [];
+      function attachToCheckoutLinks() {
+        document.querySelectorAll('a[href]').forEach(function(link) {
+          var href = link.getAttribute('href') || '';
+          if (!isCheckoutUrl(href)) return;
+          if (_patched.indexOf(link) >= 0) return; // já processado
 
-      // Fallback: sobrescreve via patch no assign
-      var _origAssign = window.location.assign.bind(window.location);
-      window._utmRedirect = function(url) {
-        if (isCheckoutUrl(url)) url = appendUtmsToUrl(url);
-        _origAssign(url);
-      };
+          _patched.push(link);
 
-      // ─── 4. ADICIONA UTMs AOS LINKS <a> DINAMICAMENTE ───────────────
-      function patchCheckoutLinks() {
-        document.querySelectorAll('a').forEach(function(link) {
-          if (!link._utmPatched && isCheckoutUrl(link.getAttribute('href') || '')) {
-            link._utmPatched = true;
-            var base = link.getAttribute('href');
-            link.setAttribute('href', appendUtmsToUrl(base));
-          }
+          // Adiciona UTMs ao href
+          link.setAttribute('href', appendUtms(href));
+
+          // Listener direto — só esse link dispara o evento
+          link.addEventListener('click', function() {
+            fireCheckoutEvent(getCheckoutValue(this.href));
+          });
         });
       }
 
-      // Observa o DOM para links adicionados pelo React
-      var _observer = new MutationObserver(function() { patchCheckoutLinks(); });
-      _observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
+      // Aguarda React renderizar e então anexa os listeners
       window.addEventListener('load', function() {
-        patchCheckoutLinks();
-        // Re-aplica após React montar
-        setTimeout(patchCheckoutLinks, 500);
-        setTimeout(patchCheckoutLinks, 1500);
+        attachToCheckoutLinks();
+        setTimeout(attachToCheckoutLinks, 800);
+        setTimeout(attachToCheckoutLinks, 2000);
       });
-
-      // ─── 5. IDs DOS BOTÕES + EVENTOS UTMIFY ─────────────────────────
-      var _checkoutButtons = [
-        { id: 'ea5d1993-36bc-9623-3f71-a921eff0da3d', value: 18.90, plan: 'Basico'   },
-        { id: 'e9249012-f35b-9564-a38c-d016d183257f', value: 29.90, plan: 'Completo' },
-        { id: '99022520-bcaa-4745-7d6e-adb564827c60', value: 24.90, plan: 'Upsell'   },
-        { id: '0cf7fa1a-346b-fe19-6c20-8acf07586f0c', value: 24.90, plan: 'Popup'    },
-        { id: '09d4ceb2-5d8e-da2b-b15c-488d615edc55', value: 18.90, plan: 'Extra'    }
-      ];
-
-      function fireUtmifyEvent(eventName, data) {
-        try {
-          if (window.utmify && typeof window.utmify === 'function') {
-            window.utmify('track', eventName, data || {});
-            console.log('[UTMify] Evento:', eventName, data);
-          } else {
-            window._utmifyQueue = window._utmifyQueue || [];
-            window._utmifyQueue.push({ event: eventName, data: data || {} });
-          }
-        } catch(e) {}
-      }
-
-      function drainQueue() {
-        if (window._utmifyQueue && window._utmifyQueue.length && window.utmify) {
-          window._utmifyQueue.forEach(function(i) { window.utmify('track', i.event, i.data); });
-          window._utmifyQueue = [];
-        }
-      }
-      setTimeout(drainQueue, 2000);
-      setTimeout(drainQueue, 4000);
-
-      // Event delegation — dispara APENAS em links de checkout
-      document.addEventListener('click', function(e) {
-        var el = e.target;
-        for (var i = 0; i < 6; i++) {
-          if (!el || el === document) break;
-          if (el.tagName === 'A' && el.href && isCheckoutUrl(el.href)) {
-            var val = el.href.indexOf('443d06f83d55c3bd') >= 0 ? 29.90
-                    : el.href.indexOf('f92ca87a')         >= 0 ? 24.90
-                    : 18.90;
-            fireUtmifyEvent('InitiateCheckout', { value: val, currency: 'BRL' });
-            try { fbq('track', 'InitiateCheckout', { value: val, currency: 'BRL' }); } catch(x) {}
-            return;
-          }
-          el = el.parentElement;
-        }
-      }, true);
     </script>
-
 
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
   </head>
