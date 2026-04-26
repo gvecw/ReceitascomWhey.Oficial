@@ -18,6 +18,24 @@
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
       fbq('track', 'PageView', {}, { eventID: 'pv_' + Date.now() });
+
+      // Garante que ViewContent dispara apenas UMA vez, bloqueando duplicatas de qualquer fonte
+      var _vcDone = false;
+      var _realFbq = window.fbq;
+      function _safeFbq() {
+        if (arguments[0] === 'track' && arguments[1] === 'ViewContent') {
+          if (_vcDone) return;
+          _vcDone = true;
+        }
+        return _realFbq.apply(this, arguments);
+      }
+      _safeFbq.callMethod = _realFbq.callMethod;
+      _safeFbq.queue     = _realFbq.queue;
+      _safeFbq.push      = _realFbq.push;
+      _safeFbq.loaded    = _realFbq.loaded;
+      _safeFbq.version   = _realFbq.version;
+      window.fbq = _safeFbq;
+      window._fbq = _safeFbq;
     </script>
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
@@ -122,6 +140,19 @@
         setTimeout(attachToCheckoutLinks, 800);
         setTimeout(attachToCheckoutLinks, 2000);
       });
+
+      // ViewContent — dispara no primeiro scroll (deduplicado pelo wrapper acima)
+      window.addEventListener('scroll', function() {
+        try {
+          fbq('track', 'ViewContent', {
+            content_name: '400 Preparos Saud\u00e1veis com Whey',
+            content_type: 'product',
+            content_ids: ['whey-receitas-400'],
+            value: 18.90,
+            currency: 'BRL'
+          });
+        } catch(e) {}
+      }, { passive: true, once: true });
 
     </script>
 
