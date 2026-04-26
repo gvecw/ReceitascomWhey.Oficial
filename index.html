@@ -17,26 +17,43 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
-      fbq('track', 'PageView', {}, { eventID: 'pv_' + Date.now() });
+      fbq('track', 'PageView');
 
-      // Garante que ViewContent dispara apenas UMA vez, bloqueando duplicatas de qualquer fonte
-      var _vcDone = false;
-      var _realFbq = window.fbq;
-      function _safeFbq() {
+      // Intercepta window.fbq via defineProperty para bloquear ViewContent duplicado
+      // funciona mesmo que UTMify ou outro script substitua window.fbq depois
+      window._vcDone = false;
+      var _innerFbq = window.fbq;
+
+      function _guardedFbq() {
         if (arguments[0] === 'track' && arguments[1] === 'ViewContent') {
-          if (_vcDone) return;
-          _vcDone = true;
+          if (window._vcDone) return; // bloqueia duplicata
+          window._vcDone = true;
         }
-        return _realFbq.apply(this, arguments);
+        return _innerFbq.apply(this, arguments);
       }
-      _safeFbq.callMethod = _realFbq.callMethod;
-      _safeFbq.queue     = _realFbq.queue;
-      _safeFbq.push      = _realFbq.push;
-      _safeFbq.loaded    = _realFbq.loaded;
-      _safeFbq.version   = _realFbq.version;
-      window.fbq = _safeFbq;
-      window._fbq = _safeFbq;
+      _guardedFbq.queue   = _innerFbq.queue;
+      _guardedFbq.push    = _innerFbq.push;
+      _guardedFbq.loaded  = _innerFbq.loaded;
+      _guardedFbq.version = _innerFbq.version;
+
+      try {
+        Object.defineProperty(window, 'fbq', {
+          get: function() { return _guardedFbq; },
+          set: function(newFbq) {
+            // Quando UTMify substituir fbq, guardamos a nova versão mas mantemos o filtro
+            _innerFbq = newFbq;
+            _guardedFbq.callMethod = newFbq.callMethod;
+          },
+          configurable: true
+        });
+        window._fbq = _guardedFbq;
+      } catch(e) {
+        // fallback: wrapper simples se defineProperty falhar
+        window.fbq = _guardedFbq;
+        window._fbq = _guardedFbq;
+      }
     </script>
+
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
     /></noscript>
