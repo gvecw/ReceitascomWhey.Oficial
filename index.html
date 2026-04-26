@@ -6,64 +6,20 @@
     <title>400 Preparos Saudáveis com Whey | A Coletânea Definitiva</title>
     <meta name="description" content="Descubra como preparar refeições incríveis com whey. 400 preparos validados por especialista — tortas, pizzas, sobremesas e muito mais. Mais de 15.000 pessoas já aprovaram." />
 
-    <!-- Meta Pixel Code -->
+    <!-- Meta Pixel -->
     <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
       fbq('track', 'PageView');
-
-      // Intercepta window.fbq via defineProperty para bloquear ViewContent duplicado
-      // funciona mesmo que UTMify ou outro script substitua window.fbq depois
-      window._vcDone = false;
-      var _innerFbq = window.fbq;
-
-      function _guardedFbq() {
-        if (arguments[0] === 'track' && arguments[1] === 'ViewContent') {
-          if (window._vcDone) return; // bloqueia duplicata
-          window._vcDone = true;
-        }
-        return _innerFbq.apply(this, arguments);
-      }
-      _guardedFbq.queue   = _innerFbq.queue;
-      _guardedFbq.push    = _innerFbq.push;
-      _guardedFbq.loaded  = _innerFbq.loaded;
-      _guardedFbq.version = _innerFbq.version;
-
-      try {
-        Object.defineProperty(window, 'fbq', {
-          get: function() { return _guardedFbq; },
-          set: function(newFbq) {
-            // Quando UTMify substituir fbq, guardamos a nova versão mas mantemos o filtro
-            _innerFbq = newFbq;
-            _guardedFbq.callMethod = newFbq.callMethod;
-          },
-          configurable: true
-        });
-        window._fbq = _guardedFbq;
-      } catch(e) {
-        // fallback: wrapper simples se defineProperty falhar
-        window.fbq = _guardedFbq;
-        window._fbq = _guardedFbq;
-      }
     </script>
-
     <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
+      src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"/></noscript>
 
-    <!-- UTMify Pixel -->
-    <script>window.pixelId = "69ecfd33c5707305e1ba1ec2";</script>
-    <script src="https://cdn.utmify.com.br/scripts/pixel/pixel.js" async defer></script>
-
-    <!-- UTMify UTMs -->
+    <!-- UTMify UTMs (passa parâmetros para o checkout, não dispara eventos de pixel) -->
     <script
       src="https://cdn.utmify.com.br/scripts/utms/latest.js"
       data-utmify-prevent-xcod-sck
@@ -72,105 +28,80 @@
       defer
     ></script>
 
-    <!-- Rastreamento de Checkout -->
+    <!-- Eventos e UTM passthrough -->
     <script>
-      // URLs de checkout
-      var _checkoutUrls = [
-        'tilimcheckout.com',
-        'pay.cakto.com.br'
-      ];
+      // ── UTMs ──────────────────────────────────────────────────────
+      var _utmKeys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck'];
 
-      function isCheckoutUrl(url) {
-        return url && _checkoutUrls.some(function(d) { return url.indexOf(d) >= 0; });
-      }
-
-      function getCheckoutValue(url) {
-        if (url.indexOf('443d06f83d55c3bd') >= 0) return 29.90;
-        if (url.indexOf('f92ca87a')         >= 0) return 24.90;
-        return 18.90;
-      }
-
-      // Captura e salva UTMs da URL no localStorage
-      (function() {
+      (function saveUtms() {
         try {
-          var keys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck','xcod'];
           var p = new URLSearchParams(window.location.search);
-          keys.forEach(function(k) { var v = p.get(k); if (v) localStorage.setItem(k, v); });
-        } catch(e) {}
+          _utmKeys.forEach(function(k){ var v=p.get(k); if(v) localStorage.setItem(k,v); });
+        } catch(e){}
       })();
 
-      function getStoredUtms() {
-        var result = {};
+      function getUtms() {
+        var r={};
         try {
-          var keys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','src','sck','xcod'];
           var p = new URLSearchParams(window.location.search);
-          keys.forEach(function(k) {
+          _utmKeys.forEach(function(k){
             var v = p.get(k) || localStorage.getItem(k);
-            if (v) result[k] = v;
+            if(v) r[k]=v;
           });
-        } catch(e) {}
-        return result;
+        } catch(e){}
+        return r;
       }
 
       function appendUtms(url) {
-        var utms = getStoredUtms();
-        var keys = Object.keys(utms);
-        if (!keys.length) return url;
-        var sep = url.indexOf('?') >= 0 ? '&' : '?';
-        return url + sep + keys.map(function(k) {
-          return encodeURIComponent(k) + '=' + encodeURIComponent(utms[k]);
-        }).join('&');
+        var u=getUtms(), keys=Object.keys(u);
+        if(!keys.length) return url;
+        var sep = url.indexOf('?')>=0 ? '&' : '?';
+        return url+sep+keys.map(function(k){ return k+'='+encodeURIComponent(u[k]); }).join('&');
       }
 
-      function fireCheckoutEvent(value) {
-        // Facebook Pixel
-        try { fbq('track', 'InitiateCheckout', { value: value, currency: 'BRL' }); } catch(e) {}
-        // UTMify
-        try {
-          if (window.utmify) window.utmify('track', 'InitiateCheckout', { value: value, currency: 'BRL' });
-        } catch(e) {}
+      // ── Domínios de checkout ───────────────────────────────────────
+      var _ckDomains = ['tilimcheckout.com','pay.cakto.com.br'];
+      function isCheckout(url){ return url && _ckDomains.some(function(d){ return url.indexOf(d)>=0; }); }
+      function checkoutValue(url){
+        if(url.indexOf('443d06f83d55c3bd')>=0) return 29.90;
+        if(url.indexOf('f92ca87a')>=0)         return 24.90;
+        return 18.90;
       }
 
-      // Anexa listener DIRETAMENTE nos links de checkout após React montar
-      var _patched = [];
-      function attachToCheckoutLinks() {
-        document.querySelectorAll('a[href]').forEach(function(link) {
-          var href = link.getAttribute('href') || '';
-          if (!isCheckoutUrl(href)) return;
-          if (_patched.indexOf(link) >= 0) return; // já processado
-
-          _patched.push(link);
-
-          // Adiciona UTMs ao href
-          link.setAttribute('href', appendUtms(href));
-
-          // Listener direto — só esse link dispara o evento
-          link.addEventListener('click', function() {
-            fireCheckoutEvent(getCheckoutValue(this.href));
+      // ── Anexa UTMs e listener nos links de checkout ───────────────
+      var _patched=[];
+      function patchLinks(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var href=a.getAttribute('href')||'';
+          if(!isCheckout(href)||_patched.indexOf(a)>=0) return;
+          _patched.push(a);
+          a.setAttribute('href', appendUtms(href));
+          a.addEventListener('click', function(){
+            var val=checkoutValue(this.href);
+            try{ fbq('track','InitiateCheckout',{value:val,currency:'BRL'}); }catch(e){}
           });
         });
       }
 
-      // Aguarda React renderizar e então anexa os listeners
-      window.addEventListener('load', function() {
-        attachToCheckoutLinks();
-        setTimeout(attachToCheckoutLinks, 800);
-        setTimeout(attachToCheckoutLinks, 2000);
+      window.addEventListener('load', function(){
+        patchLinks();
+        setTimeout(patchLinks, 800);
+        setTimeout(patchLinks, 2000);
       });
 
-      // ViewContent — dispara no primeiro scroll (deduplicado pelo wrapper acima)
-      window.addEventListener('scroll', function() {
-        try {
-          fbq('track', 'ViewContent', {
-            content_name: '400 Preparos Saud\u00e1veis com Whey',
-            content_type: 'product',
-            content_ids: ['whey-receitas-400'],
-            value: 18.90,
-            currency: 'BRL'
+      // ── ViewContent — apenas no primeiro scroll ───────────────────
+      window.addEventListener('scroll', function onScroll(){
+        window.removeEventListener('scroll', onScroll);
+        try{
+          fbq('track','ViewContent',{
+            content_name:'400 Preparos Saudáveis com Whey',
+            content_type:'product',
+            content_ids:['whey-receitas-400'],
+            value:18.90,
+            currency:'BRL'
           });
-        } catch(e) {}
-      }, { passive: true, once: true });
-
+        }catch(e){}
+      }, {passive:true, once:true});
     </script>
 
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
