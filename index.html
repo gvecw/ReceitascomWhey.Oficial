@@ -17,7 +17,7 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '2780441945651325');
-      fbq('track', 'PageView');
+      fbq('track', 'PageView', {}, { eventID: 'pv_' + Date.now() });
     </script>
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=2780441945651325&ev=PageView&noscript=1"
@@ -123,21 +123,6 @@
         setTimeout(attachToCheckoutLinks, 2000);
       });
 
-      // ViewContent — dispara UMA única vez no primeiro scroll
-      function _onFirstScroll() {
-        window.removeEventListener('scroll', _onFirstScroll);
-        try {
-          fbq('track', 'ViewContent', {
-            content_name: '400 Preparos Saudáveis com Whey',
-            content_category: 'Ebook',
-            content_type: 'product',
-            content_ids: ['whey-receitas-400'],
-            value: 18.90,
-            currency: 'BRL'
-          });
-        } catch(e) {}
-      }
-      window.addEventListener('scroll', _onFirstScroll, { passive: true });
     </script>
 
     <script type="module" crossorigin src="./assets/index-f7H5nnjm.js"></script>
